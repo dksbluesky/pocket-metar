@@ -497,3 +497,6 @@ function hideError() { hide('errorMsg'); }
 function hideData() {
   ['metarCard','dataGrid','runwayCard','cloudsCard','decoderCard'].forEach(hide);
 }
+
+// ── Auto-load default airport on startup ──
+fetchMetar('RCNN');
