@@ -71,13 +71,27 @@ async function fetchMetar(icao) {
   hideData();
 
   try {
-    const url = `https://aviationweather.gov/api/data/metar?ids=${icao}&format=raw&hours=2`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const text = (await res.text()).trim();
-    const lines = text.split('\n').map(l => l.trim().replace(/^(METAR|SPECI)\s+/, '')).filter(Boolean);
-    const raw = lines.find(l => l.startsWith(icao));
+    const apiUrl = `https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&hours=2`;
+    let data;
+
+    // Try direct fetch; fall back to CORS proxy if blocked
+    try {
+      const res = await fetch(apiUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      data = await res.json();
+    } catch (_) {
+      const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
+      const res = await fetch(proxy);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      data = await res.json();
+    }
+
+    if (!Array.isArray(data) || data.length === 0)
+      throw new Error(`No METAR found for ${icao}`);
+
+    const raw = data[0].rawOb;
     if (!raw) throw new Error(`No METAR found for ${icao}`);
+
     renderMetar(raw);
     const now = new Date();
     document.getElementById('updatedTime').textContent =
