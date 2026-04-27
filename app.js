@@ -62,7 +62,7 @@ document.getElementById('manualIcao').addEventListener('keydown', e => {
   if (e.key === 'Enter') fetchManual();
 });
 
-// ── Fetch METAR ──
+// ── Fetch METAR — tries multiple sources in order ──
 async function fetchMetar(icao) {
   currentIcao = icao;
   clearTimeout(refreshTimer);
@@ -70,38 +70,65 @@ async function fetchMetar(icao) {
   hideError();
   hideData();
 
-  try {
-    const apiUrl = `https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&hours=2`;
-    let data;
+  const noaaJson = `https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&hours=2`;
 
-    // Try direct fetch; fall back to CORS proxy if blocked
-    try {
-      const res = await fetch(apiUrl);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      data = await res.json();
-    } catch (_) {
-      const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
-      const res = await fetch(proxy);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      data = await res.json();
-    }
+  const sources = [
+    // 1. NOAA JSON direct
+    async () => {
+      const res = await fetch(noaaJson);
+      if (!res.ok) throw new Error(`NOAA ${res.status}`);
+      const d = await res.json();
+      if (!Array.isArray(d) || !d[0]?.rawOb) throw new Error('empty');
+      return d[0].rawOb;
+    },
+    // 2. NOAA JSON via corsproxy.io
+    async () => {
+      const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(noaaJson)}`);
+      if (!res.ok) throw new Error(`corsproxy ${res.status}`);
+      const d = await res.json();
+      if (!Array.isArray(d) || !d[0]?.rawOb) throw new Error('empty');
+      return d[0].rawOb;
+    },
+    // 3. NOAA JSON via allorigins
+    async () => {
+      const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(noaaJson)}`);
+      if (!res.ok) throw new Error(`allorigins ${res.status}`);
+      const d = await res.json();
+      if (!Array.isArray(d) || !d[0]?.rawOb) throw new Error('empty');
+      return d[0].rawOb;
+    },
+    // 4. VATSIM plain-text (browser-friendly, no key needed)
+    async () => {
+      const res = await fetch(`https://metar.vatsim.net/metar.php?id=${icao}`);
+      if (!res.ok) throw new Error(`VATSIM ${res.status}`);
+      const text = (await res.text()).trim().replace(/^(METAR|SPECI)\s+/, '');
+      if (!text.startsWith(icao)) throw new Error('no VATSIM data');
+      return text;
+    },
+  ];
 
-    if (!Array.isArray(data) || data.length === 0)
-      throw new Error(`No METAR found for ${icao}`);
-
-    const raw = data[0].rawOb;
-    if (!raw) throw new Error(`No METAR found for ${icao}`);
-
-    renderMetar(raw);
-    const now = new Date();
-    document.getElementById('updatedTime').textContent =
-      `更新於 ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  } catch (err) {
-    showError(`無法取得 ${icao} 的 METAR 資料。\n${err.message}`);
-  } finally {
-    showLoading(false);
-    refreshTimer = setTimeout(() => fetchMetar(currentIcao), 5 * 60 * 1000);
+  let raw = null;
+  let lastErr = 'All sources failed';
+  for (const src of sources) {
+    try { raw = await src(); if (raw) break; }
+    catch (e) { lastErr = e.message; }
   }
+
+  if (!raw) {
+    showError(`無法取得 ${icao} 的 METAR 資料。\n(${lastErr})`);
+  } else {
+    try {
+      renderMetar(raw);
+      const now = new Date();
+      document.getElementById('updatedTime').textContent =
+        `更新於 ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    } catch (e) {
+      showError(`解析錯誤 Parse error: ${e.message}`);
+    }
+  }
+
+  showLoading(false);
+  refreshTimer = setTimeout(() => fetchMetar(currentIcao), 5 * 60 * 1000);
 }
 
 // ── METAR Parser ──
