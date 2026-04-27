@@ -75,7 +75,7 @@ async function fetchMetar(icao) {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const text = (await res.text()).trim();
-    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+    const lines = text.split('\n').map(l => l.trim().replace(/^(METAR|SPECI)\s+/, '')).filter(Boolean);
     const raw = lines.find(l => l.startsWith(icao));
     if (!raw) throw new Error(`No METAR found for ${icao}`);
     renderMetar(raw);
