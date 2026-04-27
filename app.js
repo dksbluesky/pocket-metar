@@ -79,7 +79,7 @@ async function fetchMetar(icao) {
       if (!res.ok) throw new Error(`NOAA ${res.status}`);
       const d = await res.json();
       if (!Array.isArray(d) || !d[0]?.rawOb) throw new Error('empty');
-      return d[0].rawOb;
+      return d[0].rawOb.replace(/^(METAR|SPECI)\s+/, '');
     },
     // 2. NOAA JSON via corsproxy.io
     async () => {
@@ -87,7 +87,7 @@ async function fetchMetar(icao) {
       if (!res.ok) throw new Error(`corsproxy ${res.status}`);
       const d = await res.json();
       if (!Array.isArray(d) || !d[0]?.rawOb) throw new Error('empty');
-      return d[0].rawOb;
+      return d[0].rawOb.replace(/^(METAR|SPECI)\s+/, '');
     },
     // 3. NOAA JSON via allorigins
     async () => {
@@ -95,7 +95,7 @@ async function fetchMetar(icao) {
       if (!res.ok) throw new Error(`allorigins ${res.status}`);
       const d = await res.json();
       if (!Array.isArray(d) || !d[0]?.rawOb) throw new Error('empty');
-      return d[0].rawOb;
+      return d[0].rawOb.replace(/^(METAR|SPECI)\s+/, '');
     },
     // 4. VATSIM plain-text (browser-friendly, no key needed)
     async () => {
