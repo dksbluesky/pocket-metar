@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pocket METAR</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="top-bar">
+      <div class="app-title">
+        <span class="plane-icon">✈</span>
+        <span>Pocket METAR</span>
+      </div>
+      <div class="updated-time" id="updatedTime">—</div>
+    </header>
+
+    <div class="content">
+      <!-- Airport Selector -->
+      <div class="airport-selector">
+        <div class="selector-wrapper">
+          <span class="pin-icon">📍</span>
+          <select id="airportSelect" onchange="onAirportChange()">
+            <option value="">— 選擇機場 Select Airport —</option>
+            <optgroup label="Taiwan 台灣">
+              <option value="RCTP">RCTP - 桃園 Taoyuan</option>
+              <option value="RCSS">RCSS - 松山 Songshan</option>
+              <option value="RCKH">RCKH - 高雄 Kaohsiung</option>
+              <option value="RCNN">RCNN - 台南 Tainan</option>
+              <option value="RCBS">RCBS - 岡山 Gangshan</option>
+              <option value="RCMQ">RCMQ - 清泉崗 CCK</option>
+              <option value="RCFG">RCFG - 馬公 Magong</option>
+              <option value="RCYU">RCYU - 花蓮 Hualien</option>
+              <option value="RCFN">RCFN - 台東 Taitung</option>
+              <option value="RCGI">RCGI - 綠島 Green Island</option>
+              <option value="RCLY">RCLY - 蘭嶼 Orchid Island</option>
+            </optgroup>
+            <optgroup label="Manual Input 手動輸入">
+              <option value="__manual__">✏️ 輸入 ICAO 代碼...</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="manual-input-row" id="manualInputRow" style="display:none;">
+          <input type="text" id="manualIcao" placeholder="輸入 ICAO (e.g. VHHH)" maxlength="4"
+            oninput="this.value=this.value.toUpperCase()" />
+          <button onclick="fetchManual()">查詢</button>
+        </div>
+      </div>
+
+      <!-- Loading / Error -->
+      <div id="loadingMsg" class="status-msg" style="display:none;">載入中 Loading…</div>
+      <div id="errorMsg" class="status-msg error" style="display:none;"></div>
+
+      <!-- Main METAR Card -->
+      <div id="metarCard" class="metar-card" style="display:none;">
+        <div class="metar-header">
+          <span class="station-id" id="stationId"></span>
+          <span class="fr-badge" id="frBadge"></span>
+        </div>
+        <div class="raw-metar" id="rawMetar"></div>
+        <div class="obs-time" id="obsTime"></div>
+      </div>
+
+      <!-- Data Grid -->
+      <div id="dataGrid" class="data-grid" style="display:none;">
+
+        <!-- Wind -->
+        <div class="card">
+          <div class="card-label">⇒ 風速 WIND</div>
+          <div class="wind-content">
+            <div class="compass-wrap">
+              <div class="compass" id="compass">
+                <div class="compass-n">N</div>
+                <div class="wind-arrow" id="windArrow"></div>
+              </div>
+            </div>
+            <div class="wind-text" id="windText"></div>
+          </div>
+        </div>
+
+        <!-- Visibility -->
+        <div class="card">
+          <div class="card-label">👁 能見度 VIS</div>
+          <div class="vis-value" id="visValue"></div>
+          <div class="vis-unit" id="visUnit">Meters / SM</div>
+        </div>
+
+        <!-- Temperature -->
+        <div class="card">
+          <div class="card-label">🌡 氣溫 TEMP</div>
+          <div class="temp-row">
+            <span class="temp-label">T</span>
+            <span class="temp-val temp-orange" id="tempVal"></span>
+          </div>
+          <div class="temp-row">
+            <span class="temp-label">DP</span>
+            <span class="temp-val temp-blue" id="dpVal"></span>
+          </div>
+        </div>
+
+        <!-- QNH -->
+        <div class="card">
+          <div class="card-label">🔄 氣壓 QNH</div>
+          <div class="qnh-value" id="qnhHpa"></div>
+          <div class="qnh-unit">hPa</div>
+          <div class="qnh-sub" id="qnhInhg"></div>
+        </div>
+
+      </div>
+
+      <!-- Runway Card -->
+      <div id="runwayCard" class="card runway-card" style="display:none;">
+        <div class="runway-header">
+          <div class="card-label">↓ 預估使用跑道 EST. RUNWAY</div>
+          <button class="wind-calc-btn" onclick="toggleWindDetail()">Wind Calculation</button>
+        </div>
+        <div class="runway-body">
+          <div class="runway-id" id="runwayId"></div>
+          <div class="runway-winds" id="runwayWinds"></div>
+          <div class="runway-icon">🛬</div>
+        </div>
+        <div class="wind-detail" id="windDetail" style="display:none;"></div>
+      </div>
+
+      <!-- Clouds Card -->
+      <div id="cloudsCard" class="card clouds-card" style="display:none;">
+        <div class="card-label">☁ 雲層 CLOUDS</div>
+        <div id="cloudsList"></div>
+      </div>
+
+      <!-- Decoder Card -->
+      <div id="decoderCard" class="card decoder-card" style="display:none;">
+        <div class="card-label">📋 電碼解譯 DECODER</div>
+        <div id="decoderList"></div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div>Data source: VATSIM/NOAA</div>
+        <div>Not for real-world navigation.</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
