@@ -328,7 +328,7 @@ function getBestRunway(icao, windDir, windSpd) {
   // Filter to only "into wind" side (head >= -tailwind threshold)
   const candidates = details.filter(d => d.head >= -5);
   if (candidates.length > 0) {
-    const top = candidates.reduce((a, b) => a.score > b.score ? a : b);
+    const top = candidates.reduce((a, b) => a.score >= b.score ? a : b);
     best = { id: top.id, head: top.head, cross: top.cross };
   }
 
@@ -387,7 +387,7 @@ function renderMetar(raw) {
   show('dataGrid');
 
   // Runway
-  if (m.wind && m.wind.dir !== null && m.wind.spd > 0) {
+  if (m.wind && m.wind.dir !== null) {
     const rwyData = getBestRunway(m.station, m.wind.dir, m.wind.spd);
     if (rwyData) {
       const { best, details } = rwyData;
