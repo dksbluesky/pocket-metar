@@ -193,7 +193,7 @@ function parseMetar(raw) {
 
   // Present weather
   m.wx = [];
-  const wxRe = /^[-+]?(VC)?(MI|PR|BC|DR|BL|SH|TS|FZ)?(DZ|RA|SN|SG|GR|GS|IC|PL|UP|BR|FG|FU|VA|DU|SA|HZ|PO|SQ|FC|SS|DS)+(TS)?$/;
+  const wxRe = /^[-+]?(VC)?(MI|PR|BC|DR|BL|SH|TS|FZ)?(DZ|RA|SN|SG|GR|GS|IC|PL|UP|BR|FG|FU|VA|DU|SA|HZ|PO|SQ|FC|SS|DS)*(TS)?$/;
   while (wxRe.test(tokens[i]) || tokens[i] === '//' ) {
     if (tokens[i] !== '//') m.wx.push(tokens[i]);
     i++;
