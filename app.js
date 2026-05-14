@@ -5,7 +5,7 @@ const RUNWAY_DB = {
   RCTP: [{ id: '05L/R', hdg: 50 }, { id: '06L/R', hdg: 60 }, { id: '23L/R', hdg: 230 }, { id: '24L/R', hdg: 240 }],
   RCSS: [{ id: '10',    hdg: 100 }, { id: '28',   hdg: 280 }],
   RCKH: [{ id: '09',    hdg: 90  }, { id: '27',   hdg: 270 }],
-  RCNN: [{ id: '18',    hdg: 180 }, { id: '36',   hdg: 360 }, { id: '04', hdg: 40 }, { id: '22', hdg: 220 }],
+  RCNN: [{ id: '18',    hdg: 180 }, { id: '36',   hdg: 360 }],
   RCBS: [{ id: '18',    hdg: 180 }, { id: '36',   hdg: 360 }],
   RCMQ: [{ id: '11',    hdg: 110 }, { id: '29',   hdg: 290 }, { id: '20', hdg: 200 }, { id: '02', hdg: 20 }],
   RCFG: [{ id: '20',    hdg: 200 }, { id: '02',   hdg: 20  }],
@@ -387,7 +387,7 @@ function renderMetar(raw) {
   show('dataGrid');
 
   // Runway
-  if (m.wind && m.wind.dir !== null) {
+  if (m.wind && m.wind.dir !== null && m.wind.spd > 0) {
     const rwyData = getBestRunway(m.station, m.wind.dir, m.wind.spd);
     if (rwyData) {
       const { best, details } = rwyData;
