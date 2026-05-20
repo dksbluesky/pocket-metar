@@ -354,9 +354,14 @@ function renderMetar(raw) {
     const dir = m.wind.vrb ? null : m.wind.dir;
     const spd = m.wind.spd;
     const unit = m.wind.unit || 'KT';
-    if (dir !== null) {
-      const arrow = document.getElementById('windArrow');
-      arrow.style.transform = `translate(-50%, -100%) rotate(${dir}deg)`;
+    const arrowG = document.getElementById('windArrowG');
+    if (arrowG) {
+      if (dir !== null) {
+        arrowG.setAttribute('display', '');
+        arrowG.setAttribute('transform', `rotate(${dir - 180})`);
+      } else {
+        arrowG.setAttribute('display', 'none');
+      }
     }
     const windText = document.getElementById('windText');
     const dirStr = m.wind.vrb ? 'VRB' : `${m.wind.dir}°`;
@@ -498,5 +503,53 @@ function hideData() {
   ['metarCard','dataGrid','runwayCard','cloudsCard','decoderCard'].forEach(hide);
 }
 
+// ── Compass Rose ──
+function initCompass() {
+  const svg = document.getElementById('compassSvg');
+  if (!svg) return;
+
+  const R = 60;
+  let s = '';
+
+  // Background circle
+  s += `<circle r="${R}" fill="#0d1e33" stroke="#2a5a8a" stroke-width="2.5"/>`;
+
+  // Tick marks every 10°; longer every 30°
+  for (let i = 0; i < 36; i++) {
+    const deg = i * 10;
+    const isLong = i % 3 === 0;
+    const rad = (deg - 90) * Math.PI / 180;
+    const r1 = R;
+    const r2 = R - (isLong ? 11 : 5);
+    s += `<line x1="${(r1*Math.cos(rad)).toFixed(2)}" y1="${(r1*Math.sin(rad)).toFixed(2)}" x2="${(r2*Math.cos(rad)).toFixed(2)}" y2="${(r2*Math.sin(rad)).toFixed(2)}" stroke="${isLong ? '#5a8ab0' : '#3a5a78'}" stroke-width="${isLong ? 1.5 : 0.8}"/>`;
+  }
+
+  // Labels at every 30°: N/E/S/W for cardinals, then 3,6,12,15,21,24,30,33
+  const LABELS = {0:'N',30:'3',60:'6',90:'E',120:'12',150:'15',180:'S',210:'21',240:'24',270:'W',300:'30',330:'33'};
+  const lr = R - 19;
+  for (const [deg, label] of Object.entries(LABELS)) {
+    const rad = (Number(deg) - 90) * Math.PI / 180;
+    const x = (lr * Math.cos(rad)).toFixed(2);
+    const y = (lr * Math.sin(rad)).toFixed(2);
+    const isCard = ['N','E','S','W'].includes(label);
+    s += `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" fill="${isCard ? '#e0e8f0' : '#6a9ab8'}" font-size="${isCard ? 10 : 7}" font-weight="${isCard ? '800' : '600'}">${label}</text>`;
+  }
+
+  // Arrow needle: default tail at S (180°), head at N (0°)
+  // Rotated by (dir − 180) so tail ends up at FROM direction
+  const aLen = 50;
+  s += `<g id="windArrowG" transform="rotate(0)" display="none">
+    <line x1="0" y1="${aLen}" x2="0" y2="${-(aLen - 14)}" stroke="#e0e8f0" stroke-width="2.5" stroke-linecap="round"/>
+    <polygon points="0,${-aLen} -6,${-(aLen-15)} 6,${-(aLen-15)}" fill="#e0e8f0"/>
+    <rect x="-4" y="${aLen-11}" width="8" height="5" rx="1" fill="#e0e8f0" opacity="0.6"/>
+  </g>`;
+
+  // Center dot
+  s += `<circle r="3.5" fill="#0d1e33" stroke="#5a8ab0" stroke-width="1.5"/>`;
+
+  svg.innerHTML = s;
+}
+
 // ── Auto-load default airport on startup ──
+initCompass();
 fetchMetar('RCNN');
