@@ -514,14 +514,17 @@ function initCompass() {
   // Background circle
   s += `<circle r="${R}" fill="#0d1e33" stroke="#2a5a8a" stroke-width="2.5"/>`;
 
-  // Tick marks every 10°; longer every 30°
+  // Tick marks every 10°; longer every 30°; highlighted at N/E/S/W
   for (let i = 0; i < 36; i++) {
     const deg = i * 10;
+    const isCard = i % 9 === 0;
     const isLong = i % 3 === 0;
+    const tickLen = isCard ? 16 : (isLong ? 11 : 5);
+    const color   = isCard ? '#e0e8f0' : (isLong ? '#5a8ab0' : '#3a5a78');
+    const width   = isCard ? 2.5 : (isLong ? 1.5 : 0.8);
     const rad = (deg - 90) * Math.PI / 180;
-    const r1 = R;
-    const r2 = R - (isLong ? 11 : 5);
-    s += `<line x1="${(r1*Math.cos(rad)).toFixed(2)}" y1="${(r1*Math.sin(rad)).toFixed(2)}" x2="${(r2*Math.cos(rad)).toFixed(2)}" y2="${(r2*Math.sin(rad)).toFixed(2)}" stroke="${isLong ? '#5a8ab0' : '#3a5a78'}" stroke-width="${isLong ? 1.5 : 0.8}"/>`;
+    const r1 = R, r2 = R - tickLen;
+    s += `<line x1="${(r1*Math.cos(rad)).toFixed(2)}" y1="${(r1*Math.sin(rad)).toFixed(2)}" x2="${(r2*Math.cos(rad)).toFixed(2)}" y2="${(r2*Math.sin(rad)).toFixed(2)}" stroke="${color}" stroke-width="${width}"/>`;
   }
 
   // Labels at every 30°: N/E/S/W for cardinals, then 3,6,12,15,21,24,30,33
