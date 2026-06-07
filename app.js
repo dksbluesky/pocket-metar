@@ -3,16 +3,16 @@
 // ── Runway database (heading in degrees for each runway end) ──
 const RUNWAY_DB = {
   RCTP: [{ id: '05L/R', hdg: 54 }, { id: '23L/R', hdg: 234 }],
-  RCSS: [{ id: '10',    hdg: 100 }, { id: '28',   hdg: 280 }],
-  RCKH: [{ id: '09',    hdg: 90  }, { id: '27',   hdg: 270 }],
-  RCNN: [{ id: '18',    hdg: 180 }, { id: '36',   hdg: 360 }],
-  RCBS: [{ id: '18',    hdg: 180 }, { id: '36',   hdg: 360 }],
-  RCMQ: [{ id: '11',    hdg: 110 }, { id: '29',   hdg: 290 }, { id: '20', hdg: 200 }, { id: '02', hdg: 20 }],
-  RCFG: [{ id: '20',    hdg: 200 }, { id: '02',   hdg: 20  }],
-  RCYU: [{ id: '03',    hdg: 30  }, { id: '21',   hdg: 210 }, { id: '13', hdg: 130 }, { id: '31', hdg: 310 }],
-  RCFN: [{ id: '10',    hdg: 100 }, { id: '28',   hdg: 280 }, { id: '02', hdg: 20  }, { id: '20', hdg: 200 }],
-  RCGI: [{ id: '15',    hdg: 150 }, { id: '33',   hdg: 330 }],
-  RCLY: [{ id: '13',    hdg: 130 }, { id: '31',   hdg: 310 }],
+  RCSS: [{ id: '10',    hdg: 96  }, { id: '28',    hdg: 276 }],
+  RCKH: [{ id: '09',    hdg: 96  }, { id: '27',    hdg: 276 }],
+  RCNN: [{ id: '18L/R', hdg: 183 }, { id: '36L/R', hdg: 3   }],
+  RCBS: [{ id: '06',    hdg: 60  }, { id: '24',    hdg: 240 }],
+  RCMQ: [{ id: '18',    hdg: 181 }, { id: '36',    hdg: 1   }],
+  RCFG: [{ id: '03',    hdg: 30  }, { id: '21',    hdg: 210 }],
+  RCYU: [{ id: '03L/R', hdg: 30  }, { id: '21L/R', hdg: 210 }],
+  RCFN: [{ id: '04',    hdg: 43  }, { id: '22',    hdg: 223 }],
+  RCGI: [{ id: '17',    hdg: 170 }, { id: '35',    hdg: 350 }],
+  RCLY: [{ id: '13',    hdg: 130 }, { id: '31',    hdg: 310 }],
 };
 
 // ── Weather code decoder ──
