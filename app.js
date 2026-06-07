@@ -2,7 +2,7 @@
 
 // ── Runway database (heading in degrees for each runway end) ──
 const RUNWAY_DB = {
-  RCTP: [{ id: '05L/R', hdg: 50 }, { id: '06L/R', hdg: 60 }, { id: '23L/R', hdg: 230 }, { id: '24L/R', hdg: 240 }],
+  RCTP: [{ id: '05L/R', hdg: 54 }, { id: '23L/R', hdg: 234 }],
   RCSS: [{ id: '10',    hdg: 100 }, { id: '28',   hdg: 280 }],
   RCKH: [{ id: '09',    hdg: 90  }, { id: '27',   hdg: 270 }],
   RCNN: [{ id: '18',    hdg: 180 }, { id: '36',   hdg: 360 }],
